@@ -67,4 +67,4 @@ jobs:
           else
             body="${body}\n - PR #${{ github.event.pull_request.number }}"
           fi
-          gh pr edit --body=${body}
+          gh pr edit --body="${body}"
