@@ -57,15 +57,14 @@ jobs:
 
       - name: Update the PR
         run: |
-          pr=${{ github.event.pull_request.number }}
-          body="$(gh pr view ${pr} --json body | jq -r '.body')"
+          body="$(gh pr view ${{ github.event.pull_request.number }} --json body | jq -r '.body')"
 
-          declare -a issues=($(gh pr view ${pr} --json closingIssuesReferences | jq '[.[][].number]' | tr -d '[],"'))
+          declare -a issues=($(gh pr view ${{ github.event.pull_request.number }} --json closingIssuesReferences | jq '[.[][].number]' | tr -d '[],"'))
           if [ ${#issues} -gt 0 ]; then
           for issue in ${issues[@]}; do
-            body="${body}\n- Closes #${issue} (PR #${pr})"
+            body="${body}\n- Closes #${issue} (PR #${{ github.event.pull_request.number }})"
           done
           else
-            body="${body}\n - PR #${pr}"
+            body="${body}\n - PR #${{ github.event.pull_request.number }}"
           fi
           gh pr edit --body=${body}
