@@ -3,14 +3,17 @@ on:
   push: 
     branches:
       - main
+  pull_request:
+    branches:
       - staging
-  
+    types:
+     - closed
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  update-staging:
+  update-staging-branch:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -33,10 +36,10 @@ jobs:
           git config --global user.email "username@users.noreply.github.com"
           git push origin HEAD --force-with-lease
 
-  pr-staging:
+  pr-into-staging:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ github.ref == 'refs/heads/staging' }}
+    if: github.event.pull_request.merged
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,4 +53,19 @@ jobs:
         run: | 
           git fetch origin
           git checkout staging
-          gh pr create --title="Staging $(date +'%Y-%m-%d')" --fill-verbose -l STAGING
+          gh pr create --title="Staging $(date +'%Y-%m-%d')" --body="Summary:" -l STAGING
+
+      - name: Update the PR
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          body="$(gh pr view $(pr) --json body | jq -r '.body')"
+
+          declare -a issues=($(gh pr view ${{ github.event.pull_request.number }} --json closingIssuesReferences | jq '[.[][].number]' | tr -d '[],"'))
+          if [${#issues} -gt 0]; then
+          for issue in ${issues[@]}; do
+            body="${body}\n- Closes #${issue} (PR #${pr})"
+          done
+          else
+            body="${body}\n - PR #${pr}"
+          fi
+          gh pr edit --body=$(body)
