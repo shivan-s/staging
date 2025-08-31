@@ -43,5 +43,5 @@ jobs:
 
       - name: Create pull request
         run: | 
-          gh pr create -B origin/main -H origin/staging --title="Staging $(date +"%Y-%m-%d)"
+          gh pr create -B origin/main -H origin/staging --title="Staging $(date +'%Y-%m-%d')"
 
