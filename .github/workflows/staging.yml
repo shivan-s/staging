@@ -43,6 +43,8 @@ jobs:
 
       - name: Create pull request
         run: | 
+          git fetch origin
+          git checkout staging
           pr=$(gh pr view --json number -q .number || echo "")
-          gh pr create -B origin/main -H origin/staging --title="Staging $(date +'%Y-%m-%d')" --body="- $(pr)"
+          gh pr create --title="Staging $(date +'%Y-%m-%d')" --body="- $(pr)"
 
