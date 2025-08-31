@@ -18,13 +18,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create staging branch
+      - name: Create staging branch if not available
         continue-on-error: true
         run: |
           git fetch origin
           git checkout -b staging origin/main
 
-      - name: Rebase staging branch with main
+      - name: Rebase staging branch with main and update
         run: |
           git fetch origin
           git checkout staging
@@ -43,5 +43,5 @@ jobs:
 
       - name: Create pull request
         run: | 
-          gh pr create -B origin/main -H origin/staging --title="Staging $(date +'%Y-%m-%d')"
+          gh pr create -B origin/main -H origin/staging --title="Staging $(date +"%Y-%m-%d)"
 
