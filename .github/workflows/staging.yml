@@ -1,0 +1,48 @@
+name: Staging
+on: 
+  push: 
+    branches:
+      - main
+      - staging
+  
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  update-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create staging branch
+        continue-on-error: true
+        run: |
+          git fetch origin
+          git checkout -b staging origin/main
+
+      - name: Rebase staging branch with main
+        run: |
+          git fetch origin
+          git checkout staging
+          git rebase origin/main
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "username@users.noreply.github.com"
+          git push origin HEAD --force-with-lease
+
+  # FIXME: below
+  pr-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.ref == 'refs/heads/staging' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create pull request
+        run: | 
+          gh pr create -B origin/main -H origin/staging --title="Staging $(date +"%Y-%m-%d)"
+
