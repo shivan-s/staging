@@ -58,7 +58,7 @@ jobs:
       - name: Update the PR
         run: |
           pr=${{ github.event.pull_request.number }}
-          body="$(gh pr view $(pr) --json body | jq -r '.body')"
+          body="$(gh pr view ${pr} --json body | jq -r '.body')"
 
           declare -a issues=($(gh pr view ${{ github.event.pull_request.number }} --json closingIssuesReferences | jq '[.[][].number]' | tr -d '[],"'))
           if [${#issues} -gt 0]; then
@@ -68,4 +68,4 @@ jobs:
           else
             body="${body}\n - PR #${pr}"
           fi
-          gh pr edit --body=$(body)
+          gh pr edit --body=${body}
