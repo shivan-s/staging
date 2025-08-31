@@ -41,10 +41,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create pull request
+      - name: Create STAGING label if not available
+        run: |
+          gh label create STAGING --description "Staging" --color EEEEEE --force
+
+      - name: Create staging PR if not available
+        continue-on-error: true
         run: | 
           git fetch origin
           git checkout staging
-          pr=$(gh pr view --json number -q .number || echo "")
-          gh pr create --title="Staging $(date +'%Y-%m-%d')" --body="- $(pr)"
-
+          gh pr create --title="Staging $(date +'%Y-%m-%d')" --fill-verbose -l STAGING
