@@ -62,9 +62,11 @@ jobs:
           declare -a issues=($(gh pr view ${{ github.event.pull_request.number }} --json closingIssuesReferences | jq '[.[][].number]' | tr -d '[],"'))
           if [ ${#issues} -gt 0 ]; then
           for issue in ${issues[@]}; do
-            body="${body}$'\n'- Closes #${issue} (PR #${{ github.event.pull_request.number }})"
+            body="${body}
+          - Closes #${issue} (PR #${{ github.event.pull_request.number }})"
           done
           else
-            body="${body}$'\n' - PR #${{ github.event.pull_request.number }}"
+            body="${body}
+          - PR #${{ github.event.pull_request.number }}"
           fi
           gh pr edit --body="${body}"
