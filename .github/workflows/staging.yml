@@ -26,12 +26,12 @@ jobs:
         continue-on-error: true
         run: | 
           git fetch origin
-          git checkout {{ github.base_ref }}
+          git checkout ${{ github.base_ref }}
           gh pr create --title="Staging $(date +'%Y-%m-%d')" --body="Summary:" -l STAGING
 
       - name: Update the PR
         run: |
-          body="$(gh pr view {{ github.base_ref }} --json body | jq -r '.body')"
+          body="$(gh pr view ${{ github.base_ref }} --json body | jq -r '.body')"
 
           declare -a issues=($(gh pr view ${{ github.event.pull_request.number }} --json closingIssuesReferences | jq '[.[][].number]' | tr -d '[],"'))
           if [ ${#issues} -gt 0 ]; then
